@@ -34,47 +34,53 @@ sealed class Instruction(val numOfBlocks: Int) {
     class Left(numOfBlocks: Int) : Instruction(numOfBlocks)
 }
 
+data class Coordinates(val x: Int, val y: Int)
+
+data class PartialSolution(val direction: Direction, val coordinates: Coordinates)
+
 fun String.toInstruction() = when (this.substring(0, 1)) {
     "R" -> Right(this.substring(1).toInt())
     "L" -> Left(this.substring(1).toInt())
     else -> throw IllegalArgumentException("Unknown instruction type: $this")
 }
 
-fun Direction.nextDirection(instruction: Instruction) = when {
-    this is North && instruction is Right -> East()
-    this is North && instruction is Left -> West()
-    this is East && instruction is Right -> South()
-    this is East && instruction is Left -> North()
-    this is West && instruction is Right -> North()
-    this is West && instruction is Left -> South()
-    this is South && instruction is Right -> East()
-    this is South && instruction is Left -> West()
-    else -> throw IllegalArgumentException("Unknown direction: $this and instruction: $instruction combination")
+fun Direction.next(forAn: Instruction) = when {
+    this is North && forAn is Right -> East()
+    this is North && forAn is Left -> West()
+    this is East && forAn is Right -> South()
+    this is East && forAn is Left -> North()
+    this is West && forAn is Right -> North()
+    this is West && forAn is Left -> South()
+    this is South && forAn is Right -> East()
+    this is South && forAn is Left -> West()
+    else -> throw IllegalArgumentException("Unknown direction: $this and instruction: $forAn combination")
 }
 
-fun nextNumberOfBlocks(direction: Direction, prev: Int, next: Int) = when (direction) {
-    is North -> prev + next
-    is East -> prev + next
-    is West -> prev - next
-    is South -> prev - next
+fun nextCoordinates(coordinates: Coordinates, direction: Direction, instruction: Instruction) = when (direction) {
+    is North -> coordinates.copy(y = coordinates.y + instruction.numOfBlocks)
+    is East -> coordinates.copy(x = coordinates.x + instruction.numOfBlocks)
+    is West -> coordinates.copy(x = coordinates.x - instruction.numOfBlocks)
+    is South -> coordinates.copy(y = coordinates.y - instruction.numOfBlocks)
 }
 
 fun getShortestPathToDestinationLength(instructions: String): Int {
-    return instructions
+    val start = Coordinates(0, 0)
+    val stop = instructions
             .splitToSequence(delimiters = ",", ignoreCase = true)
             .map(String::trim)
             .map(String::toInstruction)
-            .fold(Pair<Direction, Int>(North(), 0), {
-                direction, instruction ->
-                val nextDirection = direction.first.nextDirection(instruction)
-                val currentBlocks = direction.second
+            .fold(PartialSolution(North(), start), {
+                solution, instruction ->
+                val nextDirection = solution.direction.next(forAn = instruction)
+                PartialSolution(nextDirection, nextCoordinates(solution.coordinates, nextDirection, instruction))
+            }).coordinates
 
-                Pair(nextDirection, nextNumberOfBlocks(nextDirection, currentBlocks, instruction.numOfBlocks))
-            }).second
+    return Math.abs(start.x - stop.x) + Math.abs(start.y - stop.y)
 }
 
 fun main(args: Array<String>) {
     println(getShortestPathToDestinationLength("R2, L3"))
     println(getShortestPathToDestinationLength("R2, R2, R2"))
     println(getShortestPathToDestinationLength("R5, L5, R5, R3"))
+    println(getShortestPathToDestinationLength("L2, L3, L3, L4, R1, R2, L3, R3, R3, L1, L3, R2, R3, L3, R4, R3, R3, L1, L4, R4, L2, R5, R1, L5, R1, R3, L5, R2, L2, R2, R1, L1, L3, L3, R4, R5, R4, L1, L189, L2, R2, L5, R5, R45, L3, R4, R77, L1, R1, R194, R2, L5, L3, L2, L1, R5, L3, L3, L5, L5, L5, R2, L1, L2, L3, R2, R5, R4, L2, R3, R5, L2, L2, R3, L3, L2, L1, L3, R5, R4, R3, R2, L1, R2, L5, R4, L5, L4, R4, L2, R5, L3, L2, R4, L1, L2, R2, R3, L2, L5, R1, R1, R3, R4, R1, R2, R4, R5, L3, L5, L3, L3, R5, R4, R1, L3, R1, L3, R3, R3, R3, L1, R3, R4, L5, L3, L1, L5, L4, R4, R1, L4, R3, R3, R5, R4, R3, R3, L1, L2, R1, L4, L4, L3, L4, L3, L5, R2, R4, L2"))
 }

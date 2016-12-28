@@ -27,23 +27,11 @@ sealed class Direction {
     class East : Direction()
     class West : Direction()
     class South : Direction()
-
-    override fun toString() = when (this) {
-        is North -> "North"
-        is East -> "East"
-        is West -> "West"
-        is South -> "South"
-    }
 }
 
 sealed class Instruction(val numOfBlocks: Int) {
     class Right(numOfBlocks: Int) : Instruction(numOfBlocks)
     class Left(numOfBlocks: Int) : Instruction(numOfBlocks)
-
-    override fun toString() = when (this) {
-        is Right -> "Right(${this.numOfBlocks})"
-        is Left -> "Left(${this.numOfBlocks})"
-    }
 }
 
 fun String.toInstruction() = when (this.substring(0, 1)) {
@@ -52,46 +40,41 @@ fun String.toInstruction() = when (this.substring(0, 1)) {
     else -> throw IllegalArgumentException("Unknown instruction type: $this")
 }
 
-fun getDirectionForInstruction(direction: Direction, instruction: Instruction): Direction {
-    return when {
-        direction is North && instruction is Right -> East()
-        direction is North && instruction is Left -> West()
-        direction is East && instruction is Right -> South()
-        direction is East && instruction is Left -> North()
-        direction is West && instruction is Right -> North()
-        direction is West && instruction is Left -> South()
-        direction is South && instruction is Right -> East()
-        direction is South && instruction is Left -> West()
-        else -> North()
-    }
+fun Direction.nextDirection(instruction: Instruction) = when {
+    this is North && instruction is Right -> East()
+    this is North && instruction is Left -> West()
+    this is East && instruction is Right -> South()
+    this is East && instruction is Left -> North()
+    this is West && instruction is Right -> North()
+    this is West && instruction is Left -> South()
+    this is South && instruction is Right -> East()
+    this is South && instruction is Left -> West()
+    else -> throw IllegalArgumentException("Unknown direction: $this and instruction: $instruction combination")
 }
 
-fun getOperator(direction: Direction): (Int, Int) -> Int {
-    return when (direction) {
-        is North -> fun(x: Int, y: Int) = x + y
-        is East -> fun(x: Int, y: Int) = x + y
-        is West -> fun(x: Int, y: Int) = x - y
-        is South -> fun(x: Int, y: Int) = x - y
-    }
+fun nextNumberOfBlocks(direction: Direction, prev: Int, next: Int) = when (direction) {
+    is North -> prev + next
+    is East -> prev + next
+    is West -> prev - next
+    is South -> prev - next
 }
 
-fun getShortestPathToDestinationLength(instruction: String): Int {
-    return instruction.splitToSequence(delimiters = ",", ignoreCase = true)
+fun getShortestPathToDestinationLength(instructions: String): Int {
+    return instructions
+            .splitToSequence(delimiters = ",", ignoreCase = true)
             .map(String::trim)
             .map(String::toInstruction)
             .fold(Pair<Direction, Int>(North(), 0), {
-                prev, elem ->
-                print(prev.first)
-                print("   ")
-                print(elem)
-                println()
-                Pair(getDirectionForInstruction(prev.first, elem),
-                        getOperator(prev.first)(prev.second, elem.numOfBlocks))
+                direction, instruction ->
+                val nextDirection = direction.first.nextDirection(instruction)
+                val currentBlocks = direction.second
+
+                Pair(nextDirection, nextNumberOfBlocks(nextDirection, currentBlocks, instruction.numOfBlocks))
             }).second
 }
 
 fun main(args: Array<String>) {
     println(getShortestPathToDestinationLength("R2, L3"))
-//    println(getShortestPathToDestinationLength("R2, R2, R2"))
-//    println(getShortestPathToDestinationLength("R5, L5, R5, R3"))
+    println(getShortestPathToDestinationLength("R2, R2, R2"))
+    println(getShortestPathToDestinationLength("R5, L5, R5, R3"))
 }

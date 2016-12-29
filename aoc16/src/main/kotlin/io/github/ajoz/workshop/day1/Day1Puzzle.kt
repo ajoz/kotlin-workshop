@@ -22,21 +22,10 @@ destination?
 http://adventofcode.com/2016/day/1
  */
 
-sealed class Direction {
-    class North : Direction()
-    class East : Direction()
-    class West : Direction()
-    class South : Direction()
-}
-
 sealed class Instruction(val numOfBlocks: Int) {
     class Right(numOfBlocks: Int) : Instruction(numOfBlocks)
     class Left(numOfBlocks: Int) : Instruction(numOfBlocks)
 }
-
-data class Coordinates(val x: Int, val y: Int)
-
-data class PartialSolution(val direction: Direction, val coordinates: Coordinates)
 
 fun String.toInstruction() = when (this.substring(0, 1)) {
     "R" -> Right(this.substring(1).toInt())
@@ -44,47 +33,78 @@ fun String.toInstruction() = when (this.substring(0, 1)) {
     else -> throw IllegalArgumentException("Unknown instruction type: $this")
 }
 
-fun Direction.next(forAn: Instruction) = when {
-    this is North && forAn is Right -> East()
-    this is North && forAn is Left -> West()
-    this is East && forAn is Right -> South()
-    this is East && forAn is Left -> North()
-    this is West && forAn is Right -> North()
-    this is West && forAn is Left -> South()
-    this is South && forAn is Right -> West()
-    this is South && forAn is Left -> East()
-    else -> throw IllegalArgumentException("Unknown direction: $this and instruction: $forAn combination")
+sealed class Direction(val numOfBlocks: Int) {
+    class North(numOfBlocks: Int) : Direction(numOfBlocks)
+    class East(numOfBlocks: Int) : Direction(numOfBlocks)
+    class West(numOfBlocks: Int) : Direction(numOfBlocks)
+    class South(numOfBlocks: Int) : Direction(numOfBlocks)
 }
 
-fun nextCoordinates(coordinates: Coordinates, direction: Direction, instruction: Instruction) = when (direction) {
-    is North -> coordinates.copy(y = coordinates.y + instruction.numOfBlocks)
-    is East -> coordinates.copy(x = coordinates.x + instruction.numOfBlocks)
-    is West -> coordinates.copy(x = coordinates.x - instruction.numOfBlocks)
-    is South -> coordinates.copy(y = coordinates.y - instruction.numOfBlocks)
+fun Direction.next(instruction: Instruction) = when {
+    this is North && instruction is Right -> East(instruction.numOfBlocks)
+    this is North && instruction is Left -> West(instruction.numOfBlocks)
+    this is East && instruction is Right -> South(instruction.numOfBlocks)
+    this is East && instruction is Left -> North(instruction.numOfBlocks)
+    this is West && instruction is Right -> North(instruction.numOfBlocks)
+    this is West && instruction is Left -> South(instruction.numOfBlocks)
+    this is South && instruction is Right -> West(instruction.numOfBlocks)
+    this is South && instruction is Left -> East(instruction.numOfBlocks)
+    else -> throw IllegalArgumentException("Unknown direction: $this and instruction: $instruction combination")
+}
+
+data class Coordinates(val x: Int, val y: Int)
+
+fun Coordinates.next(forADirection: Direction) = when (forADirection) {
+    is North -> this.copy(y = this.y + forADirection.numOfBlocks)
+    is East -> this.copy(x = this.x + forADirection.numOfBlocks)
+    is West -> this.copy(x = this.x - forADirection.numOfBlocks)
+    is South -> this.copy(y = this.y - forADirection.numOfBlocks)
+}
+
+fun <T, R> Sequence<T>.slide(initial: R, transform: (R, T) -> R): Sequence<R> {
+    return TransformingSlideSequence(this, initial, transform)
+}
+
+class TransformingSlideSequence<T, R>
+constructor(private val sequence: Sequence<T>, private val initial: R, private val transformer: (R, T) -> R) : Sequence<R> {
+    override fun iterator(): Iterator<R> = object : Iterator<R> {
+        val iterator = sequence.iterator()
+        var previous = initial
+        override fun next(): R {
+            val mapped = transformer(previous, iterator.next())
+            previous = mapped
+            return mapped
+        }
+
+        override fun hasNext(): Boolean {
+            return iterator.hasNext()
+        }
+    }
+}
+
+fun getCoordinates(instructions: String) : Sequence<Coordinates> {
+    return instructions
+            .splitToSequence(delimiters = ",", ignoreCase = true)
+            .map(String::trim)
+            .map(String::toInstruction)
+            .slide(North(0), Direction::next)
+            .slide(Coordinates(0, 0), Coordinates::next)
 }
 
 fun getShortestPathToDestinationLength(instructions: String): Int {
     val start = Coordinates(0, 0)
-    val stop = instructions
-            .splitToSequence(delimiters = ",", ignoreCase = true)
-            .map(String::trim)
-            .map(String::toInstruction)
-            .fold(PartialSolution(North(), start), {
-                solution, instruction ->
-                val nextDirection = solution.direction.next(forAn = instruction)
-                val partial = PartialSolution(nextDirection, nextCoordinates(solution.coordinates, nextDirection, instruction))
-                println(nextCoordinates(solution.coordinates, nextDirection, instruction))
-                partial
-            }).coordinates
-
+    val stop = getCoordinates(instructions).last()
     return Math.abs(start.x - stop.x) + Math.abs(start.y - stop.y)
 }
 
 fun main(args: Array<String>) {
-//    println(getShortestPathToDestinationLength("R2, L3"))
-//    println(getShortestPathToDestinationLength("R2, R2, R2"))
-//    println(getShortestPathToDestinationLength("R5, L5, R5, R3"))
-//    println(getShortestPathToDestinationLength("R2, R2, R2, R2"))
-//    println(getShortestPathToDestinationLength("R8, R4, R4, R8"))
+    println(getCoordinates("R2, L3").toList())
+
+    println(getShortestPathToDestinationLength("R2, L3"))
+    println(getShortestPathToDestinationLength("R2, R2, R2"))
+    println(getShortestPathToDestinationLength("R5, L5, R5, R3"))
+    println(getShortestPathToDestinationLength("R2, R2, R2, R2"))
+    println(getShortestPathToDestinationLength("R8, R4, R4, R8"))
+    println(getShortestPathToDestinationLength("R3, L5, R2, L1, L2, R5, L2, R2, L2, L2, L1, R2, L2, R4, R4, R1, L2, L3, R3, L1, R2, L2, L4, R4, R5, L3, R3, L3, L3, R4, R5, L3, R3, L5, L1, L2, R2, L1, R3, R1, L1, R187, L1, R2, R47, L5, L1, L2, R4, R3, L3, R3, R4, R1, R3, L1, L4, L1, R2, L1, R4, R5, L1, R77, L5, L4, R3, L2, R4, R5, R5, L2, L2, R2, R5, L2, R194, R5, L2, R4, L5, L4, L2, R5, L3, L2, L5, R5, R2, L3, R3, R1, L4, R2, L1, R5, L1, R5, L1, L1, R3, L1, R5, R2, R5, R5, L4, L5, L5, L5, R3, L2, L5, L4, R3, R1, R1, R4, L2, L4, R5, R5, R4, L2, L2, R5, R5, L5, L2, R4, R4, L4, R1, L3, R1, L1, L1, L1, L4, R5, R4, L4, L4, R5, R3, L2, L2, R3, R1, R4, L3, R1, L4, R3, L3, L2, R2, R2, R2, L1, L4, R3, R2, R2, L3, R2, L3, L2, R4, L2, R3, L4, R5, R4, R1, R5, R3"))
     println(getShortestPathToDestinationLength("L2, L3, L3, L4, R1, R2, L3, R3, R3, L1, L3, R2, R3, L3, R4, R3, R3, L1, L4, R4, L2, R5, R1, L5, R1, R3, L5, R2, L2, R2, R1, L1, L3, L3, R4, R5, R4, L1, L189, L2, R2, L5, R5, R45, L3, R4, R77, L1, R1, R194, R2, L5, L3, L2, L1, R5, L3, L3, L5, L5, L5, R2, L1, L2, L3, R2, R5, R4, L2, R3, R5, L2, L2, R3, L3, L2, L1, L3, R5, R4, R3, R2, L1, R2, L5, R4, L5, L4, R4, L2, R5, L3, L2, R4, L1, L2, R2, R3, L2, L5, R1, R1, R3, R4, R1, R2, R4, R5, L3, L5, L3, L3, R5, R4, R1, L3, R1, L3, R3, R3, R3, L1, R3, R4, L5, L3, L1, L5, L4, R4, R1, L4, R3, R3, R5, R4, R3, R3, L1, L2, R1, L4, L4, L3, L4, L3, L5, R2, R4, L2"))
 }

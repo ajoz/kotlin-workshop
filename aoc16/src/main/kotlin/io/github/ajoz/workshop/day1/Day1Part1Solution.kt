@@ -99,7 +99,3 @@ fun getShortestPathToDestinationLength(instructions: String): Int {
     val stop = getCoordinates(North(0), start, instructions).last()
     return Math.abs(start.x - stop.x) + Math.abs(start.y - stop.y)
 }
-
-fun main(args: Array<String>) {
-
-}

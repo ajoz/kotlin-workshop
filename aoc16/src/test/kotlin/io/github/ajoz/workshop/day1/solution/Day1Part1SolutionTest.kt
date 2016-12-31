@@ -1,5 +1,6 @@
-package io.github.ajoz.workshop.day1
+package io.github.ajoz.workshop.day1.solution
 
+import io.github.ajoz.workshop.day1.solution.getShortestPathToDestinationLength
 import io.kotlintest.specs.WordSpec
 
 class Day1Part1SolutionTest : WordSpec() {

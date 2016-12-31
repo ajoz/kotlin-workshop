@@ -1,5 +1,6 @@
-package io.github.ajoz.workshop.day1
+package io.github.ajoz.workshop.day1.puzzle
 
+import io.github.ajoz.workshop.day1.puzzle.getDay1Part1Solution
 import io.kotlintest.specs.WordSpec
 
 class Day1Part1PuzzleTest : WordSpec() {

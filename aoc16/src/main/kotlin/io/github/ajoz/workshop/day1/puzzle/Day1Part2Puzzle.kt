@@ -1,4 +1,4 @@
-package io.github.ajoz.workshop.day1
+package io.github.ajoz.workshop.day1.puzzle
 
 /**
  * Then, you notice the instructions continue on the back of the Recruiting Document. Easter Bunny HQ is actually at the

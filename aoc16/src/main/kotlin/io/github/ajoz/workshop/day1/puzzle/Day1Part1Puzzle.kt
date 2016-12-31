@@ -1,4 +1,4 @@
-package io.github.ajoz.workshop.day1
+package io.github.ajoz.workshop.day1.puzzle
 
 /**
  * Day 1: No Time for a Taxicab
@@ -20,4 +20,5 @@ package io.github.ajoz.workshop.day1
 
 fun getDay1Part1Solution(instructions: String): Int {
     TODO()
+
 }

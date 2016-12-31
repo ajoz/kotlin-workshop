@@ -2,6 +2,9 @@ package io.github.ajoz.workshop.day1
 
 import io.github.ajoz.workshop.day1.Direction.*
 
+/**
+ *
+ */
 sealed class Direction(val numOfBlocks: Int) {
     class North(numOfBlocks: Int) : Direction(numOfBlocks)
     class East(numOfBlocks: Int) : Direction(numOfBlocks)
@@ -9,6 +12,9 @@ sealed class Direction(val numOfBlocks: Int) {
     class South(numOfBlocks: Int) : Direction(numOfBlocks)
 }
 
+/**
+ *
+ */
 fun Direction.next(instruction: String): Direction {
     val turn = instruction.substring(0, 1)
     val numOfBlocks = instruction.substring(1).toInt()
@@ -30,8 +36,14 @@ fun Direction.next(instruction: String): Direction {
     }
 }
 
+/**
+ *
+ */
 data class Coordinates(val x: Int, val y: Int)
 
+/**
+ *
+ */
 fun Coordinates.next(forADirection: Direction) = when (forADirection) {
     is North -> this.copy(y = this.y + forADirection.numOfBlocks)
     is East -> this.copy(x = this.x + forADirection.numOfBlocks)
@@ -89,26 +101,5 @@ fun getShortestPathToDestinationLength(instructions: String): Int {
 }
 
 fun main(args: Array<String>) {
-    println(getShortestPathToDestinationLength("R2, L3"))
-    println(getShortestPathToDestinationLength("R2, R2, R2"))
-    println(getShortestPathToDestinationLength("R5, L5, R5, R3"))
-    println(getShortestPathToDestinationLength("R2, R2, R2, R2"))
-    println(getShortestPathToDestinationLength("R8, R4, R4, R8"))
 
-    println(getShortestPathToDestinationLength("""R3, L5, R2, L1, L2, R5, L2, R2, L2, L2,
- L1, R2, L2, R4, R4, R1, L2, L3, R3, L1, R2, L2, L4, R4, R5, L3, R3, L3, L3, R4, R5,
- L3, R3, L5, L1, L2, R2, L1, R3, R1, L1, R187, L1, R2, R47, L5, L1, L2, R4, R3, L3,
- R3, R4, R1, R3, L1, L4, L1, R2, L1, R4, R5, L1, R77, L5, L4, R3, L2, R4, R5, R5, L2,
- L2, R2, R5, L2, R194, R5, L2, R4, L5, L4, L2, R5, L3, L2, L5, R5, R2, L3, R3, R1, L4,
- R2, L1, R5, L1, R5, L1, L1, R3, L1, R5, R2, R5, R5, L4, L5, L5, L5, R3, L2, L5, L4, R3,
- R1, R1, R4, L2, L4, R5, R5, R4, L2, L2, R5, R5, L5, L2, R4, R4, L4, R1, L3, R1, L1, L1, L1, L4, R5, R4,
- L4, L4, R5, R3, L2, L2, R3, R1, R4, L3, R1, L4, R3, L3, L2, R2, R2, R2, L1, L4, R3, R2, R2, L3, R2, L3,
- L2, R4, L2, R3, L4, R5, R4, R1, R5, R3"""))
-
-    println(getShortestPathToDestinationLength("""L2, L3, L3, L4, R1, R2, L3, R3, R3, L1, L3, R2, R3, L3, R4, R3, R3,
- L1, L4, R4, L2, R5, R1, L5, R1, R3, L5, R2, L2, R2, R1, L1, L3, L3, R4, R5, R4, L1, L189, L2, R2, L5, R5, R45, L3,
- R4, R77, L1, R1, R194, R2, L5, L3, L2, L1, R5, L3, L3, L5, L5, L5, R2, L1, L2, L3, R2, R5, R4, L2, R3, R5, L2, L2,
- R3, L3, L2, L1, L3, R5, R4, R3, R2, L1, R2, L5, R4, L5, L4, R4, L2, R5, L3, L2, R4, L1, L2, R2, R3, L2, L5, R1, R1,
- R3, R4, R1, R2, R4, R5, L3, L5, L3, L3, R5, R4, R1, L3, R1, L3, R3, R3, R3, L1, R3, R4, L5, L3, L1, L5, L4, R4, R1,
- L4, R3, R3, R5, R4, R3, R3, L1, L2, R1, L4, L4, L3, L4, L3, L5, R2, R4, L2"""))
 }

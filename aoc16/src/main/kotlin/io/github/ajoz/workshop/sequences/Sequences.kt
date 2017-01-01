@@ -1,5 +1,7 @@
 package io.github.ajoz.workshop.sequences
 
+import java.util.*
+
 /**
  * Returns a sequence containing the results of applying the given [transform] function to each element in the original
  * sequence and the result of previous application. For the case of first element in the sequence the [initial] value
@@ -32,3 +34,17 @@ constructor(private val sequence: Sequence<T>,
         }
     }
 }
+
+/**
+ *
+ */
+fun <T> Sequence<T>.firstRepeated(): T {
+    val set = HashSet<T>()
+    for (element in this) {
+        if (set.contains(element)) return element
+        else set.add(element)
+    }
+
+    throw NoSuchElementException("Sequence contains no repeating elements")
+}
+

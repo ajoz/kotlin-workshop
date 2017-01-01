@@ -1,5 +1,6 @@
 package io.github.ajoz.workshop.day1.solution
 
+import io.github.ajoz.workshop.sequences.firstRepeated
 import io.github.ajoz.workshop.sequences.scan
 
 /**
@@ -105,7 +106,7 @@ private fun Coordinates.next(instruction: Instruction) = next(instruction.direct
  * 4. Change [Instruction] to [Coordinates]
  * 5. Pick last [Coordinates] from the [Sequence]
  */
-fun getShortestPathToDestinationLength(instructions: String): Int {
+fun getShortestPathLengthToDestination(instructions: String): Int {
     val startInstruction = Instruction(Direction.NORTH, 0) //after we land in the city we are pointing North
 
     val startCoords = Coordinates(0, 0)
@@ -124,37 +125,58 @@ fun getShortestPathToDestinationLength(instructions: String): Int {
  */
 
 /**
+ * Calculates a [List] of [Coordinates] for a given [Direction] and a distance. It's working through a infinite
+ * [Sequence] of value 1 (this is the step), it takes only first few values (the amount of values taken is equal to the
+ * distance), then it just calculates [Coordinates] on the path in the given [Direction].
  *
+ * Before I implement a nice flatScan method, we need to return a [List] because
  */
 private fun Coordinates.path(direction: Direction, distance: Int) =
         generateSequence { 1 }
                 .take(distance)
                 .scan(this) { coordinates, value -> coordinates.next(direction, value) }
+                .toList()
 
 /**
- *
+ * Calculates a [List] of [Coordinates] for a given [Instruction].
  */
 private fun Coordinates.path(instruction: Instruction) = path(instruction.direction, instruction.distance)
 
 /**
+ * Calculates the shortest path from the start [Coordinates] (0, 0) to the first repeating [Coordinates] calculated by
+ * processing the given instructions string.
  *
+ * Algorithm is simple:
+ * 1. split the instruction string into a [Sequence] of [String] (from: "L2, L3" we get: "L2", " L3")
+ * 2. trim the white chars from the [Sequence] of [String] we got in previous step
+ * 3. each instruction can be built only when we know what was the previous instruction, so we [scan] the whole
+ * [Sequence] of [String]. Method [scan] for a Sequence<T> takes an initial value of type R and a lambda (R, T) -> R to
+ * process all the elements of the sequence. As the function (R, T) -> R expects two arguments, for the first element in
+ * the Sequence<T> the specified initial value is used. This way in our case we can easily calculate each [Instruction].
+ * 4. between each previous and next [Coordinates] a [List] of [Coordinates] is calculated (a path). As we are working
+ * with [Int] values for coordinates, the calculated path will have a difference of 1 between two coordinates that are
+ * next of each other (in terms of x or y value)
+ * 5. we need to flatten Sequence<List<Coordinates>> to Sequence<Coordinates>
+ * 6. we take the fist repeated coordinates
  */
-//fun getShortestPathToFirstRepeatedDestination(instructions: String) : Int {
-//    val startInstruction = Instruction(Direction.NORTH, 0) //after we land in the city we are pointing North
-//
-//    val startCoords = Coordinates(0, 0)
-//    val stopCoords = instructions
-//            .splitToSequence(delimiters = ",", ignoreCase = true)
-//            .map(String::trim)
-//            .scan(startInstruction, Instruction::next)
-//            .flatScan(sequenceOf(startCoords)) {
-//                sequence, instruction -> sequence + sequence.last().path(instruction)
-//            }.firstRepeated()
-//    return startCoords.getL1distance(stopCoords)
-//}
+fun getShortestPathLengthToFirstRepeatedDestination(instructions: String): Int {
+    val startInstruction = Instruction(Direction.NORTH, 0) //after we land in the city we are pointing North
+
+    val startCoords = Coordinates(0, 0)
+    val partialPath = instructions
+            .splitToSequence(delimiters = ",", ignoreCase = true)
+            .map(String::trim)
+            .scan(startInstruction, Instruction::next)
+            .scan(listOf(startCoords)) { list, instr -> list.last().path(instr) } //flatScan??
+            .flatten()
+
+    val fullPath = sequenceOf(startCoords) + partialPath
+
+    val stopCoords = fullPath.firstRepeated()
+
+    return startCoords.getL1distance(stopCoords)
+}
 
 fun main(args: Array<String>) {
-    val startCoords = Coordinates(0, 0)
-
-    println(startCoords.path(Direction.NORTH, 10).toList())
+    println(getShortestPathLengthToFirstRepeatedDestination("R8, R4, R4, R8"))
 }

@@ -20,5 +20,4 @@ package io.github.ajoz.workshop.day1.puzzle
 
 fun getDay1Part1Solution(instructions: String): Int {
     TODO()
-
 }

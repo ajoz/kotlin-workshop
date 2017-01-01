@@ -62,7 +62,15 @@ private fun Instruction.next(instruction: String): Instruction {
 /**
  * Class represents calculated coordinates of each step of the route to Bunny HQ.
  */
-private data class Coordinates(val x: Int, val y: Int)
+private data class Coordinates(val x: Int, val y: Int) {
+    /**
+     * Calculates the L1 distance (other names include: l1 norm, snake distance, city block distance, Manhattan
+     * distance, Manhattan length, rectilinear distance).
+     *
+     * @param to [Coordinates] to which the L1 distance will be calculated.
+     */
+    fun getL1distance(to: Coordinates) = Math.abs(this.x - to.x) + Math.abs(this.y - to.y)
+}
 
 /**
  * Allows to generate coordinates of the next step of the route. As we can go only in any of the four directions: North,
@@ -84,7 +92,8 @@ private fun Coordinates.next(direction: Direction, distance: Int) = when (direct
 private fun Coordinates.next(instruction: Instruction) = next(instruction.direction, instruction.distance)
 
 /**
- * Returns a [Sequence] of [Instruction] from a given initial [Instruction] and a string instruction representation.
+ * Calculates the shortest path from the start [Coordinates] (0, 0) to the [Coordinates] calculated by processing the
+ * given instructions string.
  *
  * Algorithm is simple:
  * 1. split the instruction string into a [Sequence] of [String] (from: "L2, L3" we get: "L2", " L3")
@@ -93,32 +102,36 @@ private fun Coordinates.next(instruction: Instruction) = next(instruction.direct
  * [Sequence] of [String]. Method [scan] for a Sequence<T> takes an initial value of type R and a lambda (R, T) -> R to
  * process all the elements of the sequence. As the function (R, T) -> R expects two arguments, for the first element in
  * the Sequence<T> the specified initial value is used. This way in our case we can easily calculate each [Instruction].
- */
-private fun getInstructions(instruction: Instruction,
-                            instructions: String): Sequence<Instruction> = instructions
-        .splitToSequence(delimiters = ",", ignoreCase = true)
-        .map(String::trim)
-        .scan(instruction, Instruction::next)
-
-/**
- * Calculates the shortest path from the start [Coordinates] (0, 0) to the [Coordinates] calculated by processing the
- * given instructions string.
+ * 4. Change [Instruction] to [Coordinates]
+ * 5. Pick last [Coordinates] from the [Sequence]
  */
 fun getShortestPathToDestinationLength(instructions: String): Int {
     val startInstruction = Instruction(Direction.NORTH, 0) //after we land in the city we are pointing North
 
     val startCoords = Coordinates(0, 0)
-    val stopCoords = getInstructions(startInstruction, instructions)
+    val stopCoords = instructions
+            .splitToSequence(delimiters = ",", ignoreCase = true)
+            .map(String::trim)
+            .scan(startInstruction, Instruction::next)
             .scan(startCoords, Coordinates::next)
             .last()
 
-    return Math.abs(startCoords.x - stopCoords.x) + Math.abs(startCoords.y - stopCoords.y)
+    return startCoords.getL1distance(stopCoords)
 }
 
 /**
  * -------------------- Part 2 -----------------------
  */
 
-private fun Coordinates.path(instruction: Instruction) {
+private fun Coordinates.path(direction: Direction, distance: Int) =
+        generateSequence { 1 }
+                .take(distance)
+                .scan(this) { coordinates, value -> coordinates.next(direction, value) }
 
+private fun Coordinates.path(instruction: Instruction) = path(instruction.direction, instruction.distance)
+
+fun main(args: Array<String>) {
+    val startCoords = Coordinates(0, 0)
+
+    println(startCoords.path(Direction.NORTH, 10).toList())
 }

@@ -123,12 +123,35 @@ fun getShortestPathToDestinationLength(instructions: String): Int {
  * -------------------- Part 2 -----------------------
  */
 
+/**
+ *
+ */
 private fun Coordinates.path(direction: Direction, distance: Int) =
         generateSequence { 1 }
                 .take(distance)
                 .scan(this) { coordinates, value -> coordinates.next(direction, value) }
 
+/**
+ *
+ */
 private fun Coordinates.path(instruction: Instruction) = path(instruction.direction, instruction.distance)
+
+/**
+ *
+ */
+//fun getShortestPathToFirstRepeatedDestination(instructions: String) : Int {
+//    val startInstruction = Instruction(Direction.NORTH, 0) //after we land in the city we are pointing North
+//
+//    val startCoords = Coordinates(0, 0)
+//    val stopCoords = instructions
+//            .splitToSequence(delimiters = ",", ignoreCase = true)
+//            .map(String::trim)
+//            .scan(startInstruction, Instruction::next)
+//            .flatScan(sequenceOf(startCoords)) {
+//                sequence, instruction -> sequence + sequence.last().path(instruction)
+//            }.firstRepeated()
+//    return startCoords.getL1distance(stopCoords)
+//}
 
 fun main(args: Array<String>) {
     val startCoords = Coordinates(0, 0)

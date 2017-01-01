@@ -3,7 +3,7 @@ package io.github.ajoz.workshop.day1.solution
 import io.github.ajoz.workshop.day1.solution.getShortestPathToDestinationLength
 import io.kotlintest.specs.WordSpec
 
-class Day1Part1SolutionTest : WordSpec() {
+class Day1SolutionTest : WordSpec() {
     init {
         "The shortest path to Bunny HQ" should {
             "be 0 for a short all RIGHT (R) round route from start to finish" {

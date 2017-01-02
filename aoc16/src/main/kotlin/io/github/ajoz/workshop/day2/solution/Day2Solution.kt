@@ -41,6 +41,46 @@ import io.github.ajoz.workshop.sequences.scan
  * Your puzzle input is the instructions from the document you found at the front desk. What is the bathroom code?
  */
 
+/**
+ * We can see the solution to this puzzle in terms of a deterministic FSM (finite state machine). An input alphabet of
+ * a FSM consists of a set of symbols:
+ */
+sealed class Symbol {
+    class Up : Symbol()
+    class Left : Symbol()
+    class Right : Symbol()
+    class Down : Symbol()
+
+    override fun toString() = when (this) {
+        Symbol.Up() -> "Up"
+        Symbol.Down() -> "Down"
+        Symbol.Left() -> "Left"
+        Symbol.Right() -> "Right"
+    }
+}
+
+val Char.symbol: Symbol
+    get() = when (this) {
+        'U' -> Symbol.Up()
+        'D' -> Symbol.Down()
+        'L' -> Symbol.Left()
+        'R' -> Symbol.Right()
+        else -> throw IllegalArgumentException("Cannot convert character: $this to a Symbol")
+    }
+
+sealed class Part1State(val value: Char) {
+    class Key1 : Part1State('1')
+    class Key2 : Part1State('2')
+    class Key3 : Part1State('3')
+    class Key4 : Part1State('4')
+    class Key5 : Part1State('5')
+    class Key6 : Part1State('6')
+    class Key7 : Part1State('7')
+    class Key8 : Part1State('8')
+    class Key9 : Part1State('9')
+}
+
+
 
 fun main(args: Array<String>) {
     val test = """
@@ -50,58 +90,5 @@ fun main(args: Array<String>) {
                 |UUUUD
                """.trimMargin()
 
-    val test2 = """
-|DLDRDDDLULDRRLUDDLDUURDRDUULDRDDRRLDLLUUDDLLRLRDRUURLUDURDDRURLUDDUULUURLLRRRRUDULUDLULLUURRLLRRURRUDUUURRLUUUDURDLLLDULDRLRDDDUDDUURLRRRURULLUDDUULDRRRDDLRLUDDRRDLRDURLRURUDDUULDDUUDDURRLUURRULRRLDLULLRLRUULDUDDLLLRDDULRUDURRDUUDUUDDUULULURDLUDRURDLUUDRDUURDDDRDRLDLDRURRLLRURURLLULLRRUULRRRRDLDULDDLRRRULRURRDURUDUUULDUUDRLDDLDUDDRULLUDUULRRRDRRDRDULDLURDDURLRUDLURLUDDDRLLURUUUUUUURUULDUUDDRLULRUDURRDLDUULLRLULLURDDDDDLRRDLRLLDDUDRRRDDURDLRRUDDUDLRRRDDURULRURRRLDRDUDLD
-|LRRDUDUUUDRRURRDUUULULUDDLLDRRRUDDUULRRDRUDRLLRLRULRRDUUDRLDURUDLLLDRRDLRLUUDRUDRRRUDRRRULDRRLLRDDDLLRDDRULRLLRUDRLLLULDLDDRDRUUUUUULURLLRUDRDRLLULLRUUURRDRULULUDLDURRUUDURLLUDRDLDDULUDLRDDRLRLURULDRURRRRURRDDUDRULUUUDDDRULRULDLLURUUULRDDLRUURLRLDLUULLURDRDDDUDDDRLDRDLLDRDDDDURLUUULDDRURULUDDURDRDRLULDULURDUURDRLLUUUULRULUUDRLLDDRRURUURLDLLRRRDLRURDDLDLDRLRRDLDURULDDLULRRRUUDLRDUURDURLURDDLDLRURLLLDRDULDDRUDDULDDRRLDLRDRDLDUUDLUULRLUDUUDUUUULDURULRRUDULURLRLDRLULLLDUDLLLRUDURDDDURLDDLRLRRDLUDLDDDDLULDRLDUUULDRRDDLRUULDLULUUURUDDRLDDDULRUDRURUURUUURRULRURDURLLRLLUULUULURDRLLUDDLU
-|LLDURDUDRLURUDRLRLUDDRRURDULULDDUDUULRRLRLRRDRDRDURRLRLURRLRUDULLUULLURUDDRLDDDRURLUUDLDURRDURDDLUULRDURRUUURLRRURRDRDRDURRRLULLDRUDLRUDURDRDDLLULLULRRUDULDDRDRRDLLLDLURLRDRDLUDDRLDDLDRULDURLLRLDRDLUDDDDLDUUDRLLRRRRLDDRRLRLURLLRLLUULLDUUDLRDRRRDRDLLDULLDRLDDUDRDDRURRDDLRDLRRUUDRRRRDURUULDRDDURLURRRRURRDRRULULURULUUUDRRRLDLLLDDRULRUDDURDRLDDRDLULLLRURUDRLRDDLDLRRRUURDURLDURRUUDDLRDRUUUURDLRLULRUUDRLDLULLULUURURDULUDUDRRRLLRLURLLDLRRURURRUDLUDDDDRDUDUDUUUULLDRDLLLLUUUUDRLRLUDURLLUDRUUDLLURUULDDDDULUUURLLDL
-|DLULLRDLRRLLLDLRRURRDRURDRUUULDDRLURURRDLRRULUUDDRLRRLDULRRUUDUULDDDUDLLDLURDRLLULLUUULLDURDRRRDDLRDUDRRRLRLDRRLRLULDDUDURRRLDLRULDULDDUDDRULDLDRDRDDRUDRUDURRRRUUDUDRLDURLDLRRUURRDDUDLLDUDRRURRLRRRRRLDUDDRLLLURUDRRUDRLRDUDUUUUUDURULLDUUDLRUUULDUUURURLUUDULDURUDDDLRRRDDRRDLRULLLRDDRLRLUULDUUULLLLDLRURLRRDURRLDLLLDURDLLUDDDLLDDURDDULURDRRRDDDLDDURRULUUDDLULLURULUULDLDDLUDRURURULUDDULRDRLDRRRUUUURUULDRLRRURRLULULURLLDRLRLURULRDDDULRDDLUR
-|RURRULLRRDLDUDDRRULUDLURLRRDDRDULLLUUDDDRDDRRULLLDRLRUULRRUDLDLLLRLLULDRLDDDLLDDULLDRLULUUUURRRLLDRLDLDLDDLUDULRDDLLRLLLULLUDDRDDUUUUDLDLRRDDRDLUDURRUURUURDULLLLLULRRLDRLRDLUURDUUDLDRURURLLDRRRLLLLRDLDURRLRRLLRUUDDUULLRLUDLRRRRRURUDDURULURRUULRDDULUUDUUDDRDDDDDUUUDDDRRLDDRRDDUUULDURLDULURDRDLLURDULRUDRUULUULLRRRRLRUUDDUDLDURURLRRRULRDRRUDDRDDRLRRRLRURRRUULULLLUULLLULLUDLRDLDURRURDLDLRDUULDRLLRRLDUDDUULULR
-""".trimMargin()
 
-
-    val seq = test2.splitToSequence(delimiters = "\n")
-    var startingKey = 5
-    for (item in seq) {
-//        println(item.toList())
-        startingKey = item.asSequence()
-                .scan(startingKey) {key, instr -> key next instr}
-                .last()
-        print(startingKey)
-    }
-}
-
-val Int.down: Int
-    get() = when (this) {
-        in 1..6 -> this + 3
-        in 7..9 -> this
-        else -> throw IllegalArgumentException("Down - value not in range 1 - 9: ${this}")
-    }
-
-val Int.up: Int
-    get() = when (this) {
-        in 1..3 -> this
-        in 4..9 -> this - 3
-        else -> throw IllegalArgumentException("Up - value not in range 1 - 9: ${this}")
-    }
-
-val Int.right: Int
-    get() = when (this) {
-        1, 2, 4, 5, 7, 8 -> this + 1
-        3, 6, 9 -> this
-        else -> throw IllegalArgumentException("Right - value not in range 1 - 9: ${this}")
-    }
-
-val Int.left: Int
-    get() = when (this) {
-        1, 4, 7 -> this
-        2, 3, 5, 6, 8, 9 -> this - 1
-        else -> throw IllegalArgumentException("Left - value not in range 1 - 9: ${this}")
-    }
-
-infix fun Int.next(instruction: Char) = when (instruction) {
-    'U' -> this.up
-    'D' -> this.down
-    'L' -> this.left
-    'R' -> this.right
-    else -> throw IllegalArgumentException("Wrong instruction char: $instruction")
 }

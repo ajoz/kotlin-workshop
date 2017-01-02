@@ -176,7 +176,3 @@ fun getShortestPathLengthToFirstRepeatedDestination(instructions: String): Int {
 
     return startCoords.getL1distance(stopCoords)
 }
-
-fun main(args: Array<String>) {
-    println(getShortestPathLengthToFirstRepeatedDestination("R8, R4, R4, R8"))
-}

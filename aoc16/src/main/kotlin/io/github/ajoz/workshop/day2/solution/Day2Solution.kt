@@ -52,20 +52,20 @@ sealed class Symbol {
     class Down : Symbol()
 
     override fun toString() = when (this) {
-        Symbol.Up() -> "Up"
-        Symbol.Down() -> "Down"
-        Symbol.Left() -> "Left"
-        Symbol.Right() -> "Right"
+        is Symbol.Up -> "Up"
+        is Symbol.Down -> "Down"
+        is Symbol.Left -> "Left"
+        is Symbol.Right -> "Right"
     }
 }
 
-val Char.symbol: Symbol
+val Char.symbol: Symbol?
     get() = when (this) {
         'U' -> Symbol.Up()
         'D' -> Symbol.Down()
         'L' -> Symbol.Left()
         'R' -> Symbol.Right()
-        else -> throw IllegalArgumentException("Cannot convert character: $this to a Symbol")
+        else -> null
     }
 
 sealed class Part1State(val value: Char) {

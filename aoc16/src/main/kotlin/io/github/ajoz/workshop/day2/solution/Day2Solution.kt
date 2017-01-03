@@ -23,6 +23,9 @@ val Char.symbol: Symbol?
         else -> null
     }
 
+/**
+ * Set of State:
+ */
 enum class SimpleKeypad(val value: Char) {
     Key1('1'),
     Key2('2'),
@@ -39,7 +42,7 @@ data class Match<out T, out V>(val state: T, val symbol: V)
 data class Transition<out T, out V>(val match: Match<T, V>, val state: T)
 
 infix fun <T, V> T.after(value: V) = Match(this, value)
-infix fun <T, V> Match<T, V>.transitionsTo(state: T) = Transition(this, state)
+infix fun <T, V> Match<T, V>.to(state: T) = Transition(this, state)
 
 fun <T, V> transitions(vararg transtions: Transition<T, V>) {
 
@@ -62,15 +65,15 @@ fun main(args: Array<String>) {
                """.trimMargin()
 
     transitions(
-            Key1 after Up transitionsTo Key1,
-            Key2 after Up transitionsTo Key2,
-            Key3 after Up transitionsTo Key3,
-            Key4 after Up transitionsTo Key1,
-            Key5 after Up transitionsTo Key2,
-            Key6 after Up transitionsTo Key3,
-            Key7 after Up transitionsTo Key4,
-            Key8 after Up transitionsTo Key5,
-            Key9 after Up transitionsTo Key6
+            Key1 after Up to Key1,
+            Key2 after Up to Key2,
+            Key3 after Up to Key3,
+            Key4 after Up to Key1,
+            Key5 after Up to Key2,
+            Key6 after Up to Key3,
+            Key7 after Up to Key4,
+            Key8 after Up to Key5,
+            Key9 after Up to Key6
     )
 
 

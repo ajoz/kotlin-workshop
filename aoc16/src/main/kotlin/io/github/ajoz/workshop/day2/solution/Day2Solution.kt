@@ -1,5 +1,8 @@
 package io.github.ajoz.workshop.day2.solution
 
+import io.github.ajoz.workshop.day2.solution.SimpleKeypad.*
+import io.github.ajoz.workshop.day2.solution.Symbol.Up
+
 /**
  * We can see the solution to this puzzle in terms of a deterministic FSM (finite state machine). An input alphabet of
  * a FSM consists of a set of symbols:
@@ -13,7 +16,7 @@ enum class Symbol {
 
 val Char.symbol: Symbol?
     get() = when (this) {
-        'U' -> Symbol.Up
+        'U' -> Up
         'D' -> Symbol.Down
         'L' -> Symbol.Left
         'R' -> Symbol.Right
@@ -35,10 +38,18 @@ enum class SimpleKeypad(val value: Char) {
 data class Match<out T, out V>(val state: T, val symbol: V)
 data class Transition<out T, out V>(val match: Match<T, V>, val state: T)
 
-infix fun <T, V> T.with(value: V) = Match(this, value)
+infix fun <T, V> T.after(value: V) = Match(this, value)
 infix fun <T, V> Match<T, V>.transitionsTo(state: T) = Transition(this, state)
 
 fun <T, V> transitions(vararg transtions: Transition<T, V>) {
+
+}
+
+class Transitions<T, V> {
+    val children = arrayListOf<Transition<T, V>>()
+}
+
+fun <T, V> transitions(init: Transitions<T, V>.() -> Unit) {
 
 }
 
@@ -51,15 +62,15 @@ fun main(args: Array<String>) {
                """.trimMargin()
 
     transitions(
-            SimpleKeypad.Key1 with Symbol.Up transitionsTo SimpleKeypad.Key1,
-            SimpleKeypad.Key2 with Symbol.Up transitionsTo SimpleKeypad.Key2,
-            SimpleKeypad.Key3 with Symbol.Up transitionsTo SimpleKeypad.Key3,
-            SimpleKeypad.Key4 with Symbol.Up transitionsTo SimpleKeypad.Key1,
-            SimpleKeypad.Key5 with Symbol.Up transitionsTo SimpleKeypad.Key2,
-            SimpleKeypad.Key6 with Symbol.Up transitionsTo SimpleKeypad.Key3,
-            SimpleKeypad.Key7 with Symbol.Up transitionsTo SimpleKeypad.Key4,
-            SimpleKeypad.Key8 with Symbol.Up transitionsTo SimpleKeypad.Key5,
-            SimpleKeypad.Key9 with Symbol.Up transitionsTo SimpleKeypad.Key6
+            Key1 after Up transitionsTo Key1,
+            Key2 after Up transitionsTo Key2,
+            Key3 after Up transitionsTo Key3,
+            Key4 after Up transitionsTo Key1,
+            Key5 after Up transitionsTo Key2,
+            Key6 after Up transitionsTo Key3,
+            Key7 after Up transitionsTo Key4,
+            Key8 after Up transitionsTo Key5,
+            Key9 after Up transitionsTo Key6
     )
 
 

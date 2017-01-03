@@ -154,7 +154,7 @@ private fun Coordinates.path(instruction: Instruction) = path(instruction.direct
  * process all the elements of the sequence. As the function (R, T) -> R expects two arguments, for the first element in
  * the Sequence<T> the specified initial value is used. This way in our case we can easily calculate each [Instruction].
  * 4. between each previous and next [Coordinates] a [List] of [Coordinates] is calculated (a path). As we are working
- * with [Int] values for coordinates, the calculated path will have a difference of 1 between two coordinates that are
+ * after [Int] values for coordinates, the calculated path will have a difference of 1 between two coordinates that are
  * next of each other (in terms of x or y value)
  * 5. we need to flatten Sequence<List<Coordinates>> to Sequence<Coordinates>
  * 6. we take the fist repeated coordinates

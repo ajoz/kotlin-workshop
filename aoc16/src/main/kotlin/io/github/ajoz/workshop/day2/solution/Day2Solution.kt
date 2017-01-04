@@ -63,6 +63,15 @@ fun getSimpleKeypadCode(instructions: String) : Int {
 
 fun main(args: Array<String>) {
 
+    // desired syntax:
+    // State to State after Symbol -- single state to state mapping after a Symbol
+    // State or State to State after Symbol -- any state to state mapping after Symbol
+    // State cyclesAfter Symbol -- single state cycles after Symbol
+    // State or State cyclesAfter Symbol -- any state cycles after Symbol
+    // State or State cyclesAfter Symbol or Symbol -- any combination cycles
+    // State to State after Symbol or Symbol -- single mapping after any symbol
+    // State or State to State after Symbol or Symbol -- any state to state after any symbol
+
     Key1 or Key2 or Key3 cyclesAfter Up
 
     transitions(

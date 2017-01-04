@@ -20,5 +20,9 @@ package io.github.ajoz.workshop.day2.puzzle
  * - Finally, after five more moves, you end at 3.
  *
  * So, given the actual keypad layout, the code would be 5DB3.
+ *
+ * http://adventofcode.com/2016/day/2
  */
 
+@Suppress("UNUSED_PARAMETER")
+fun getDay2Part2Solution(instructions: String) : String = TODO()

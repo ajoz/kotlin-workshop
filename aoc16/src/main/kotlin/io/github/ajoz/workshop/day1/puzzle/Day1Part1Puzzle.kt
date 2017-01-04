@@ -18,6 +18,5 @@ package io.github.ajoz.workshop.day1.puzzle
  * £http://adventofcode.com/2016/day/1
  */
 
-fun getDay1Part1Solution(instructions: String): Int {
-    TODO()
-}
+@Suppress("UNUSED_PARAMETER")
+fun getDay1Part1Solution(instructions: String): Int = TODO()

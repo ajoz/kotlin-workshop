@@ -1,131 +1,96 @@
 package io.github.ajoz.workshop.day2.solution
 
-import io.github.ajoz.workshop.day2.solution.InstructionSymbol.*
-import io.github.ajoz.workshop.day2.solution.SimpleKeypad.*
-
 /**
  * We can see the solution to this puzzle in terms of a deterministic FSM (finite state machine). An input alphabet of
- * a FSM consists of a set of symbols:
+ * a FSM consists of a set of symbols, states change to next states due to a transition function.
  */
-enum class InstructionSymbol {
-    Up,
-    Left,
-    Right,
-    Down;
+
+data class State<T>(val value: T) {
+    override fun toString() = "State($value)"
+
+    infix fun or(other: State<T>) = setOf(this, other)
+
+    infix fun <V> after(symbol: Symbol<V>) = Match(this, symbol)
+
+    infix fun <V> after(symbols: Set<Symbol<V>>) = symbols.map { Match(this, it) }.toSet()
 }
 
-val Char.symbol: InstructionSymbol?
-    get() = when (this) {
-        'U' -> Up
-        'D' -> Down
-        'L' -> Left
-        'R' -> Right
-        else -> null
-    }
+data class Symbol<T>(val value: T) {
+    override fun toString() = "Symbol($value)"
 
-/**
- * Set of State:
- */
-enum class SimpleKeypad(val value: Char) {
-    Key1('1'),
-    Key2('2'),
-    Key3('3'),
-    Key4('4'),
-    Key5('5'),
-    Key6('6'),
-    Key7('7'),
-    Key8('8'),
-    Key9('9')
+    infix fun or(other: Symbol<T>) = setOf(this, other)
 }
 
-data class Match<out T, out V>(val state: T, val symbol: V)
-data class Transition<out T, out V>(val match: Match<T, V>, val state: T)
+data class Match<T, V>(val state: State<T>, val symbol: Symbol<V>) {
+    override fun toString() = "Match(state=${state.value}, symbol=${symbol.value})"
 
-data class SymbolSet<out T>(val states: List<T>)
-
-infix fun <T> T.or(value: T) = SymbolSet(listOf(this, value))
-infix fun <T> SymbolSet<T>.or(value: T) = SymbolSet(states + value)
-infix fun <T, V> SymbolSet<T>.cyclesAfter(symbol: V) {
-
+    infix fun transitionsTo(state: State<T>) = Transitions(mapOf(this to state))
 }
 
-infix fun <T, V> T.after(value: V) = Match(this, value)
-infix fun <T, V> Match<T, V>.to(state: T) = Transition(this, state)
+data class Transitions<T, V>(val values: Map<Match<T, V>, State<T>>)
 
-fun <T, V> transitions(vararg transtions: Transition<T, V>) {
+infix fun <T> Set<State<T>>.or(other: State<T>) = this + other
+infix fun <T> Set<Symbol<T>>.or(other: Symbol<T>) = this + other
 
+infix fun <T, V> Set<State<T>>.cyclesAfter(other: Symbol<V>): Transitions<T, V> {
+    val transitions = this
+            .map { Match(it, other) }
+            .map { Pair(it, it.state) }
+            .toMap()
+    return Transitions(transitions)
 }
 
-fun getSimpleKeypadCode(instructions: String) : Int {
+infix fun <T, V> Set<State<T>>.cyclesAfter(other: Set<Symbol<V>>): Transitions<T, V> {
+    val transitions = other
+            .map { symbol -> this.cyclesAfter(symbol) }
+            .flatMap { it.values.toList() }
+            .toMap()
 
-    return 0
+    return Transitions(transitions)
 }
+
+fun <T, V> matchOf(state: T, symbol: V) = Match(State(state), Symbol(symbol))
+
+val Char.symbol: Symbol<Char>
+    get() = Symbol(this)
+
 
 fun main(args: Array<String>) {
+    (State(1) or State(2) or State(3)) cyclesAfter Symbol('U')
+    (State(1) or State(4) or State(7)) cyclesAfter Symbol('L')
+    (State(3) or State(6) or State(9)) cyclesAfter Symbol('R')
+    (State(7) or State(8) or State(9)) cyclesAfter Symbol('D')
 
-    // desired syntax:
-    // State to State after Symbol -- single state to state mapping after a Symbol
-    // State or State to State after Symbol -- any state to state mapping after Symbol
-    // State cyclesAfter Symbol -- single state cycles after Symbol
-    // State or State cyclesAfter Symbol -- any state cycles after Symbol
-    // State or State cyclesAfter Symbol or Symbol -- any combination cycles
-    // State to State after Symbol or Symbol -- single mapping after any symbol
-    // State or State to State after Symbol or Symbol -- any state to state after any symbol
+    State(1) after Symbol('R') transitionsTo State(2)
+    State(1) after Symbol('D') transitionsTo State(4)
 
-    Key1 or Key2 or Key3 cyclesAfter Up
+    State(2) after Symbol('L') transitionsTo State(1)
+    State(2) after Symbol('R') transitionsTo State(3)
+    State(2) after Symbol('D') transitionsTo State(5)
 
-    transitions(
-            //cycles need a better syntax State or State or State cyclesAfter Symbol (harder to implement 4 transitions)
-            //or State cyclesAfter Symbol or Symbol or Symbol (easier to implement gives (8 transitions)
-            Key1 after Up to Key1,
-            Key2 after Up to Key2,
-            Key3 after Up to Key3,
+    State(3) after Symbol('L') transitionsTo State(2)
+    State(3) after Symbol('D') transitionsTo State(6)
 
-            Key1 after Left to Key1,
-            Key4 after Left to Key4,
-            Key7 after Left to Key7,
+    State(4) after Symbol('U') transitionsTo State(1)
+    State(4) after Symbol('R') transitionsTo State(5)
+    State(4) after Symbol('D') transitionsTo State(7)
 
-            Key3 after Right to Key3,
-            Key6 after Right to Key6,
-            Key9 after Right to Key9,
+    State(5) after Symbol('U') transitionsTo State(2)
+    State(5) after Symbol('L') transitionsTo State(4)
+    State(5) after Symbol('R') transitionsTo State(6)
+    State(5) after Symbol('D') transitionsTo State(8)
 
-            Key7 after Down to Key7,
-            Key8 after Down to Key8,
-            Key9 after Down to Key9,
+    State(6) after Symbol('U') transitionsTo State(3)
+    State(6) after Symbol('L') transitionsTo State(5)
+    State(6) after Symbol('D') transitionsTo State(9)
 
-            //non cycles:
-            Key1 after Right to Key2,
-            Key1 after Down to Key4,
+    State(7) after Symbol('U') transitionsTo State(4)
+    State(7) after Symbol('R') transitionsTo State(8)
 
-            Key2 after Left to Key1,
-            Key2 after Right to Key3,
-            Key2 after Down to Key5,
+    State(8) after Symbol('U') transitionsTo State(5)
+    State(8) after Symbol('L') transitionsTo State(7)
+    State(8) after Symbol('R') transitionsTo State(9)
 
-            Key3 after Left to Key2,
-            Key3 after Down to Key6,
-
-            Key4 after Up to Key1,
-            Key4 after Right to Key5,
-            Key4 after Down to Key7,
-
-            Key5 after Up to Key2,
-            Key5 after Left to Key4,
-            Key5 after Right to Key6,
-            Key5 after Down to Key8,
-
-            Key6 after Up to Key3,
-            Key6 after Left to Key5,
-            Key6 after Down to Key9,
-
-            Key7 after Up to Key4,
-            Key7 after Right to Key8,
-
-            Key8 after Up to Key5,
-            Key8 after Left to Key7,
-            Key8 after Right to Key9,
-
-            Key9 after Up to Key6,
-            Key9 after Left to Key8
-    )
-
+    State(9) after Symbol('U') transitionsTo State(6)
+    State(9) after Symbol('L') transitionsTo State(8)
 }

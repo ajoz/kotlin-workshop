@@ -11,13 +11,15 @@ class StateTest : WordSpec() {
                 State("TestState").toString() shouldBe "State(TestState)"
             }
 
-            "return a StateSet when called or with another State" {
+            "return a StateSet after call to 'or' method with another State" {
                 val set = State(1) or State(2)
+
+                set.values.size shouldBe 2
                 set.values should contain(State(1))
                 set.values should contain(State(2))
             }
 
-            "return a Match when called after with a Symbol" {
+            "return a Match after call to 'after' method with a Symbol" {
                 val match = State(1) after Symbol('R')
                 match.state shouldBe State(1)
                 match.symbol shouldBe Symbol('R')

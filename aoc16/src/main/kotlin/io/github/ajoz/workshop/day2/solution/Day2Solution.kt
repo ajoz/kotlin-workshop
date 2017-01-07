@@ -1,76 +1,27 @@
 package io.github.ajoz.workshop.day2.solution
 
+import io.github.ajoz.workshop.fsm.FSM
+import io.github.ajoz.workshop.fsm.Match
+import io.github.ajoz.workshop.fsm.Match.Companion.matchOf
+import io.github.ajoz.workshop.fsm.Symbol
+import io.github.ajoz.workshop.fsm.State
+
 /**
  * We can see the solution to this puzzle in terms of a deterministic FSM (finite state machine). An input alphabet of
  * a FSM consists of a set of symbols, states change to next states due to a transition function.
  */
 
-data class State<T>(val value: T) {
-    override fun toString() = "State($value)"
-
-    infix fun or(other: State<T>) = States(setOf(this, other))
-
-    infix fun <V> after(symbol: Symbol<V>) = Match(this, symbol)
-
-    infix fun <V> after(symbols: Set<Symbol<V>>) = symbols.map { Match(this, it) }.toSet()
-}
-
-data class States<T>(val values: Set<State<T>>) {
-    infix fun or(state: State<T>) = States(values + state)
-
-    infix fun <V> cyclesAfter(symbol: Symbol<V>): Transitions<T, V> {
-        val transitions = values
-                .map { state -> Match(state, symbol) }
-                .map { match -> Pair(match, match.state) }
-                .toMap()
-        return Transitions(transitions)
-    }
-
-    infix fun <V> cyclesAfter(symbols: Set<Symbol<V>>): Transitions<T, V> {
-        val transitions = symbols
-                .map { symbol -> this.cyclesAfter(symbol) }
-                .flatMap { it.values.toList() }
-                .toMap()
-
-        return Transitions(transitions)
-    }
-}
-
-data class Symbol<T>(val value: T) {
-    override fun toString() = "Symbol($value)"
-
-    infix fun or(other: Symbol<T>) = Symbols(setOf(this, other))
-}
-
-data class Symbols<T>(val values: Set<Symbol<T>>) {
-    infix fun or(symbol: Symbol<T>) = Symbols(values + symbol)
-}
-
-data class Match<T, V>(val state: State<T>, val symbol: Symbol<V>) {
-    override fun toString() = "Match(state=${state.value}, symbol=${symbol.value})"
-
-    infix fun transitionsTo(state: State<T>) = Transitions(mapOf(this to state))
-
-    companion object {
-        fun <T, V> matchOf(state: T, symbol: V) = Match(State(state), Symbol(symbol))
-    }
-}
 
 data class Transitions<T, V>(val values: Map<Match<T, V>, State<T>>)
 
 fun <T, V> transitions(vararg transitions: Transitions<T, V>): (State<T>, Symbol<V>) -> State<T> {
-//    val t = transitions.map { it.values. }
-    return fun(st: State<T>, sy: Symbol<V>): State<T> {
-        return st
+    val t = transitions.fold(emptyMap<Match<T, V>, State<T>>()) {
+        map, trans ->
+        map + trans.values
     }
-}
-
-class FSM<T, V>(val state: State<T>, transition: (State<T>, Symbol<V>) -> State<T>) {
-    val transition = transition
-
-    fun next(symbol: Symbol<V>): FSM<T, V> {
-        val nextState = transition(state, symbol)
-        return FSM(nextState, transition)
+    return fun(st: State<T>, sy: Symbol<V>): State<T> {
+        val state = t[matchOf(st, sy)]
+        return state!! //we want this implementation to die if anything bad happens :)
     }
 }
 
@@ -85,7 +36,7 @@ val String.tail: String
 
 tailrec fun accept(fsm: FSM<Int, Char>, instruction: String): FSM<Int, Char> = when {
     instruction.isEmpty() -> fsm
-    else -> accept(fsm.next(instruction.head.symbol), instruction.tail)
+    else -> accept(fsm.accept(instruction.head.symbol), instruction.tail)
 }
 
 fun main(args: Array<String>) {
@@ -122,5 +73,5 @@ fun main(args: Array<String>) {
 
     val fsm = FSM(State(5), t)
     val result = accept(fsm, "ULL")
-    println(result)
+    println(result.state)
 }

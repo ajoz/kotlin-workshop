@@ -6,6 +6,8 @@ import java.util.*
  * Returns a sequence containing the results of applying the given [transform] function to each element in the original
  * sequence and the result of previous application. For the case of first element in the sequence the [initial] value
  * will be used as the "previous result" and passed to [transform] function.
+ * @param initial Initial element from which the scan should take place.
+ * @param transform Two argument function used to perform scan operation.
  */
 fun <T, R> Sequence<T>.scan(initial: R, transform: (R, T) -> R): Sequence<R> {
     return TransformingScanSequence(this, initial, transform)
@@ -36,7 +38,8 @@ constructor(private val sequence: Sequence<T>,
 }
 
 /**
- *
+ * Returns first repeated element in the [Sequence]. Can throw a [NoSuchElementException] if the [Sequence] doesn't have
+ * elements or there are no repeating elements
  */
 fun <T> Sequence<T>.firstRepeated(): T {
     val set = HashSet<T>()

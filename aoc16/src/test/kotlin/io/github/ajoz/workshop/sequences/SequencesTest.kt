@@ -1,7 +1,8 @@
 package io.github.ajoz.workshop.sequences
 
 import io.kotlintest.specs.WordSpec
-import java.util.*
+import io.kotlintest.matchers.contain
+import java.util.NoSuchElementException
 
 class SequencesTest : WordSpec() {
     init {
@@ -10,7 +11,7 @@ class SequencesTest : WordSpec() {
                 val emptySeq = emptySequence<Int>()
                 val transform = { prev: Int, next: Int -> prev + next }
 
-                emptySeq.scan(0, transform).count() shouldEqual 0
+                emptySeq.scan(0, transform).toList() should beEmpty()
             }
 
             "throw exception when checked for first repeated element" {
@@ -26,7 +27,9 @@ class SequencesTest : WordSpec() {
                 val oneElemSeq = sequenceOf(1)
                 val transform = { prev: Int, next: Int -> prev + next }
 
-                oneElemSeq.scan(0, transform).last() shouldEqual 1
+                val actual = oneElemSeq.scan(0, transform).toList()
+
+                actual should contain element 1
             }
 
             "throw exception when checked for first repeated element" {
@@ -40,14 +43,20 @@ class SequencesTest : WordSpec() {
         "Multi element Sequence: [1, 2, 2, 3]" should {
             "map to [1, 3, 5, 8] when scanned with 0 for a sum transformation" {
                 val multiElemSeq = sequenceOf(1, 2, 2, 3)
-                val expectedSeq = sequenceOf(1, 3, 5, 8)
+                val expected = listOf(1, 3, 5, 8)
                 val transform = { prev: Int, next: Int -> prev + next }
 
+                val actual = multiElemSeq.scan(0, transform).toList()
 
-                //TODO: add Seq<T> shouldEqual Seq<T> for comparing sequences in tests
-                multiElemSeq.scan(0, transform)
+                actual.size shouldBe expected.size
+                actual shouldBe expected
+            }
+
+            "return 2 when checked for fist repeated element" {
+                val multiElemSeq = sequenceOf(1, 2, 2, 3)
+
+                multiElemSeq.firstRepeated() shouldBe 2
             }
         }
-
     }
 }

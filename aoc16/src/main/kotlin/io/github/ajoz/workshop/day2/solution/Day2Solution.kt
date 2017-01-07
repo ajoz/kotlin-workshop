@@ -50,13 +50,17 @@ data class Match<T, V>(val state: State<T>, val symbol: Symbol<V>) {
     override fun toString() = "Match(state=${state.value}, symbol=${symbol.value})"
 
     infix fun transitionsTo(state: State<T>) = Transitions(mapOf(this to state))
+
+    companion object {
+        fun <T, V> matchOf(state: T, symbol: V) = Match(State(state), Symbol(symbol))
+    }
 }
 
 data class Transitions<T, V>(val values: Map<Match<T, V>, State<T>>)
 
 fun <T, V> transitions(vararg transitions: Transitions<T, V>): (State<T>, Symbol<V>) -> State<T> {
 //    val t = transitions.map { it.values. }
-    return fun (st: State<T>, sy: Symbol<V>): State<T> {
+    return fun(st: State<T>, sy: Symbol<V>): State<T> {
         return st
     }
 }

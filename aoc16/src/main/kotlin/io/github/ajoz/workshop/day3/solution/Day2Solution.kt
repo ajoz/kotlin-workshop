@@ -4,33 +4,26 @@ import java.io.File
 
 data class Specification(val a: Int, val b: Int, val c: Int)
 
-val Specification.isTriangle: Boolean
-    get() {
-        val side1 = a + b > c
-        val side2 = a + c > b
-        val side3 = b + c > a
-        return side1 && side2 && side3
+val Specification?.isTriangle: Boolean
+    get() = when (this) {
+        null -> false
+        else -> (a + b > c) && (a + c > b) && (b + c > a)
     }
 
-fun toSpecification(list: List<Int>): Specification? = when {
-    list.isEmpty() -> null
-    list.size != 3 -> null
-    else -> Specification(list[0], list[1], list[2])
+fun toSpecification(list: List<String>): Specification? = when (list.size) {
+    3 -> Specification(list[0].toInt(), list[1].toInt(), list[2].toInt())
+    else -> null
 }
 
-val input = File("src/main/resources/day3/input")
+val input = File("src/main/resources/day3/puzzle-input")
 
 fun main(args: Array<String>) {
     val count = input.readLines()
-            .map { line ->
-                line.trim()
-                        .split(delimiters = " ")
-                        .filter(String::isNotBlank)
-                        .map(String::toInt)
+            .map { it.split(delimiters = " ")
+                    .filter(String::isNotBlank)
             }
             .map(::toSpecification)
-            .filter { spec -> spec!!.isTriangle }
+            .filter(Specification?::isTriangle)
             .count()
-
     println(count)
 }

@@ -1,5 +1,8 @@
 package io.github.ajoz.workshop.fsm
 
+import io.kotlintest.matchers.contain
+import io.kotlintest.matchers.should
+import io.kotlintest.matchers.shouldBe
 import io.kotlintest.specs.WordSpec
 
 class SymbolTest : WordSpec() {

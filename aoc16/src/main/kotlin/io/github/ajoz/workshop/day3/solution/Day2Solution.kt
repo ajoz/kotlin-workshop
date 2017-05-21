@@ -18,9 +18,11 @@ fun toSpecification(list: List<String>): Specification? = when (list.size) {
 val input = File("src/main/resources/day3/puzzle-input")
 
 fun main(args: Array<String>) {
-    val count = input.readLines()
-            .map { it.split(delimiters = " ")
-                    .filter(String::isNotBlank)
+    val count = input
+            .readLines()
+            .map {
+                it.split(delimiters = " ")
+                        .filter(String::isNotBlank)
             }
             .map(::toSpecification)
             .filter(Specification?::isTriangle)

@@ -1,5 +1,6 @@
 package io.github.ajoz.workshop.day1.solution
 
+import io.kotlintest.matchers.shouldBe
 import io.kotlintest.specs.WordSpec
 
 class Day1Part1SolutionTest : WordSpec() {

@@ -1,8 +1,11 @@
 package io.github.ajoz.workshop.sequences
 
-import io.kotlintest.specs.WordSpec
+import io.kotlintest.matchers.beEmpty
 import io.kotlintest.matchers.contain
-import java.util.NoSuchElementException
+import io.kotlintest.matchers.should
+import io.kotlintest.matchers.shouldBe
+import io.kotlintest.matchers.shouldThrow
+import io.kotlintest.specs.WordSpec
 
 class SequencesTest : WordSpec() {
     init {
@@ -29,7 +32,7 @@ class SequencesTest : WordSpec() {
 
                 val actual = oneElemSeq.scan(0, transform).toList()
 
-                actual should contain element 1
+                actual should contain(1)
             }
 
             "throw exception when checked for first repeated element" {

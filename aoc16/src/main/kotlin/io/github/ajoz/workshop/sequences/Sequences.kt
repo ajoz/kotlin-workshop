@@ -1,7 +1,5 @@
 package io.github.ajoz.workshop.sequences
 
-import java.util.*
-
 /**
  * Returns a sequence containing the results of applying the given [transform] function to each element in the original
  * sequence and the result of previous application. For the case of first element in the sequence the [initial] value

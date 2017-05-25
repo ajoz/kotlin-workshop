@@ -15,7 +15,7 @@ package io.github.ajoz.workshop.day1.puzzle
  * destination. Given that you can only walk on the street grid of the city, how far is the shortest path to the
  * destination?
  *
- * £http://adventofcode.com/2016/day/1
+ * http://adventofcode.com/2016/day/1
  */
 
 @Suppress("UNUSED_PARAMETER")

@@ -324,9 +324,9 @@ class KWorkshopTest {
         fake[100] = 50
         println(fake[33])
 
-        for (i in fake) {
-            println(i)
-        }
+//        for (i in fake) {
+//            println(i)
+//        }
         //there are other operators to overload:
         // unuary:
         // unuaryPlus, unuaryMinus, not, inc, dec
@@ -388,5 +388,5 @@ class KWorkshopTest {
         println(cn2.value)
     }
 
-    
+
 }
